@@ -71,12 +71,8 @@ Differs from ERC20 standard on when allowances are required and decreased, same 
 ERC20Permit.sol (67 sloc)
 Extension of ERC20 to accept ERC2612 off-chain approvals.
 
-AccessControl.sol (226 sloc)
-Access control contract adapted from OpenZeppelin's AccessControl.sol. A role exists for each function in a contract, and if the `auth` modifier is present in a function, access must have been granted by the root account. The privileged account can grant and revoke roles, as well as root privileges.
-Root can lock functions, disabling any further changes in their access control, except for existing users renouncing to granted roles.
-
-Ownable.sol (21 sloc)
-Contract to create a single privileged role that can be held by a single address
+SafeERC20Namer.sol (91 sloc)
+Produces token descriptors from inconsistent or absent ERC20 symbol implementations that can return string or bytes32
 
 TransferHelper.sol (29 sloc)
 Adapted from Uniswap & BoringSolidity. Safe transferring of ERC20 tokens and Ether, regardless of reverts or return values.
@@ -84,28 +80,48 @@ Adapted from Uniswap & BoringSolidity. Safe transferring of ERC20 tokens and Eth
 MinimalTransferHelper.sol (29 sloc)
 Adapted from Uniswap & BoringSolidity. Safe transferring of ERC20 tokens, regardless of reverts or return values.
 
-ChainlinkMultiOracle.sol (52 sloc)
+AddressStringUtil.sol (31 sloc)
+String utilities.
+
+RevertMsgExtractor.sol (19 sloc)
+Extractor or revert messages from return data.
+
+AccessControl.sol (226 sloc)
+Access control contract adapted from OpenZeppelin's AccessControl.sol. A role exists for each function in a contract, and if the `auth` modifier is present in a function, access must have been granted by the root account. The privileged account can grant and revoke roles, as well as root privileges.
+Root can lock functions, disabling any further changes in their access control, except for existing users renouncing to granted roles.
+
+Ownable.sol (21 sloc)
+Contract to create a single privileged role that can be held by a single address
+
+ChainlinkMultiOracle.sol (89 sloc)
 Calls Chainlink aggregators to return the value of an asset amount.
+Two contracts deployed, one for 18 and one for 8 decimals.
+
+UniswapV3Oracle.sol (92 sloc)
+Calls Uniswap V3 pools to return the value of an asset amount.
 One contract deployed.
 
-CompoundMultiOracle.sol (52 sloc)
+CompoundMultiOracle.sol (60 sloc)
 Calls Compound cTokens to return the borrowing and lending rate.
 One contract deployed.
 
-Join.sol (120 sloc)
+Join.sol (121 sloc)
 Asset holding. Only privileged accounts or contracts can move assets out of the Join, or ask the Join to take assets. Can serve ERC3156 flash loans.
 One contract per asset deployed.
+
+JoinFactory.sol (67 sloc)
+Deployment of Joins. One contract.
 
 FYToken.sol (204 sloc)
 ERC20 zero coupon bond, redeemable at maturity for underlying.
 Calls Join.sol to obtain funds to serve redemptions, and an Oracle to determine the savings rate, which will be applied to redemptions as well. Can be flash minted with no fees following the ERC3156 standard.
 Numerous contracts deployed.
 
-Cauldron.sol (412 sloc)
+Cauldron.sol (416 sloc)
 Accounting system for Yield v2. The only external dependencies are towards rate oracles and spot oracles. All transactional functions require privileged access. The main function besides accounting is to reveal whether a vault is collateralized using the `ink * price * ratio >= art * accrual * rate` formula.
 One contract deployed.
 
-Ladle.sol (468 sloc)
+Ladle.sol (495 sloc)
 Routing and asset management for Yield v2. It has considerable privileges:
  - Moves assets in and out of the Joins
  - Mints and burns fyToken
@@ -114,10 +130,13 @@ Routing and asset management for Yield v2. It has considerable privileges:
  - Calls YieldSpace functions
 It also implements a batching system to group several calls together.
 
-Wand.sol ()
+LadleStorage.sol (44 sloc)
+Storage variables for Ladle, so that Modules can inherit them and align their storage with the Ladle.
+
+Wand.sol (117)
 Governance router. The Wand bundles governance calls into governance actions such as adding an asset or a series.
 
-Witch.sol (67 sloc)
+Witch.sol (73 sloc)
 Liquidations engine, same implementation from Yield v1, refactored. Calls the Ladle to move assets, and the Cauldron to obtain and release control of undercollateralized vaults.
 
 Math64x64.sol (693 lines)
