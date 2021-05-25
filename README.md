@@ -114,6 +114,9 @@ Routing and asset management for Yield v2. It has considerable privileges:
  - Calls YieldSpace functions
 It also implements a batching system to group several calls together.
 
+Wand.sol ()
+Governance router. The Wand bundles governance calls into governance actions such as adding an asset or a series.
+
 Witch.sol (67 sloc)
 Liquidations engine, same implementation from Yield v1, refactored. Calls the Ladle to move assets, and the Cauldron to obtain and release control of undercollateralized vaults.
 

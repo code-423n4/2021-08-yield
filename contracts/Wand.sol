@@ -1,38 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
-import "@yield-protocol/vault-interfaces/IJoinFactory.sol";
-import "@yield-protocol/vault-interfaces/IJoin.sol";
-import "@yield-protocol/vault-interfaces/DataTypes.sol";
-import "@yield-protocol/yieldspace-interfaces/IPoolFactory.sol";
-import "@yield-protocol/utils-v2/contracts/access/AccessControl.sol";
+import "./interfaces/vault/ICauldronGov.sol";
+import "./interfaces/vault/ILadleGov.sol";
+import "./interfaces/vault/IMultiOracleGov.sol";
+import "./interfaces/vault/IJoinFactory.sol";
+import "./interfaces/vault/IJoin.sol";
+import "./interfaces/vault/DataTypes.sol";
+import "./interfaces/yieldspace/IPoolFactory.sol";
+import "./utils/access/AccessControl.sol";
 import "./FYToken.sol";
 
-
-interface ICauldronGov {
-    function assets(bytes6) external view returns (address);
-    function series(bytes6) external view returns (DataTypes.Series memory);
-    function rateOracles(bytes6) external view returns (IOracle);
-    function addAsset(bytes6, address) external;
-    function addSeries(bytes6, bytes6, IFYToken) external;
-    function addIlks(bytes6, bytes6[] memory) external;
-    function setRateOracle(bytes6, IOracle) external;
-    function setSpotOracle(bytes6, bytes6, IOracle, uint32) external;
-    function setDebtLimits(bytes6, bytes6, uint96, uint24, uint8) external;
-}
-
-interface ILadleGov {
-    function joins(bytes6) external view returns (IJoin);
-    function addJoin(bytes6, address) external;
-    function addPool(bytes6, address) external;
-}
-
-interface IRateMultiOracleGov {
-    function setSource(bytes6, bytes32, address) external;
-}
-
-interface ISpotMultiOracleGov {
-    function setSource(bytes6, bytes6, address) external;
-}
 
 interface IOwnable {
     function transferOwnership(address) external;
@@ -46,6 +23,8 @@ contract Wand is AccessControl {
     bytes4 public constant MINT = bytes4(keccak256("mint(address,uint256)"));
     bytes4 public constant BURN = bytes4(keccak256("burn(address,uint256)"));
     
+    bytes6 public constant CHI = "chi";
+    bytes6 public constant RATE = "rate";
 
     ICauldronGov public immutable cauldron;
     ILadleGov public immutable ladle;
@@ -83,18 +62,18 @@ contract Wand is AccessControl {
 
     /// @dev Make a base asset out of a generic asset, by adding rate and chi oracles.
     /// This assumes CompoundMultiOracles, which deliver both rate and chi.
-    function makeBase(bytes6 assetId, IRateMultiOracleGov oracle, address rateSource, address chiSource) public auth {
+    function makeBase(bytes6 assetId, IMultiOracleGov oracle, address rateSource, address chiSource) public auth {
         require (address(oracle) != address(0), "Oracle required");
         require (rateSource != address(0), "Rate source required");
         require (chiSource != address(0), "Chi source required");
 
-        oracle.setSource(assetId, "rate", rateSource);
-        oracle.setSource(assetId, "chi", chiSource);
+        oracle.setSource(assetId, RATE, rateSource);
+        oracle.setSource(assetId, CHI, chiSource);
         cauldron.setRateOracle(assetId, IOracle(address(oracle))); // TODO: Consider adding a registry of chi oracles in cauldron as well
     }
 
     /// @dev Make an ilk asset out of a generic asset, by adding a spot oracle against a base asset, collateralization ratio, and debt ceiling.
-    function makeIlk(bytes6 baseId, bytes6 ilkId, ISpotMultiOracleGov oracle, address spotSource, uint32 ratio, uint96 max, uint24 min, uint8 dec) public auth {
+    function makeIlk(bytes6 baseId, bytes6 ilkId, IMultiOracleGov oracle, address spotSource, uint32 ratio, uint96 max, uint24 min, uint8 dec) public auth {
         oracle.setSource(baseId, ilkId, spotSource);
         cauldron.setSpotOracle(baseId, ilkId, IOracle(address(oracle)), ratio);
         cauldron.setDebtLimits(baseId, ilkId, max, min, dec);
@@ -131,7 +110,7 @@ contract Wand is AccessControl {
         // Allow the fyToken to pull from the base join for redemption
         bytes4[] memory sigs = new bytes4[](1);
         sigs[0] = EXIT;
-        AccessControl(address(baseJoin)).grantRoles(sigs, address(ladle));
+        AccessControl(address(baseJoin)).grantRoles(sigs, address(fyToken));
 
         // Allow the ladle to issue and cancel fyToken
         sigs = new bytes4[](2);

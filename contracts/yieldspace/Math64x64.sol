@@ -1,8 +1,4 @@
 // SPDX-License-Identifier: BUSL-1.1
-/*
- *  Math 64.64 Smart Contract Library.  Copyright © 2019 by  Consulting.
- * Author: Mikhail Vladimirov <mikhail.vladimirov@gmail.com>
- */
 pragma solidity >= 0.8.0;
 
 /**

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >= 0.8.0;
 
-import "@yield-protocol/vault-interfaces/IJoinFactory.sol";
+import "./interfaces/vault/IJoinFactory.sol";
 import "./Join.sol";
 
 

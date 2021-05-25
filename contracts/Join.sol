@@ -3,17 +3,17 @@ pragma solidity ^0.8.0;
 
 import "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 import "erc3156/contracts/interfaces/IERC3156FlashLender.sol";
-import "@yield-protocol/vault-interfaces/IJoin.sol";
-import "@yield-protocol/vault-interfaces/IJoinFactory.sol";
-import "@yield-protocol/utils-v2/contracts/token/IERC20.sol";
-import "@yield-protocol/utils-v2/contracts/access/AccessControl.sol";
-import "@yield-protocol/utils-v2/contracts/token/AllTransferHelper.sol";
+import "./interfaces/vault/IJoin.sol";
+import "./interfaces/vault/IJoinFactory.sol";
+import "./interfaces/external/IERC20.sol";
+import "./utils/access/AccessControl.sol";
+import "./utils/token/TransferHelper.sol";
 import "./math/WMul.sol";
 import "./math/CastU256U128.sol";
 
 
 contract Join is IJoin, IERC3156FlashLender, AccessControl() {
-    using AllTransferHelper for IERC20;
+    using TransferHelper for IERC20;
     using WMul for uint256;
     using CastU256U128 for uint256;
 

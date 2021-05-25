@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
-import "@yield-protocol/vault-interfaces/IFYToken.sol";
-import "@yield-protocol/vault-interfaces/IJoin.sol";
-import "@yield-protocol/vault-interfaces/ICauldron.sol";
-import "@yield-protocol/vault-interfaces/IOracle.sol";
-import "@yield-protocol/vault-interfaces/DataTypes.sol";
-import "@yield-protocol/yieldspace-interfaces/IPool.sol";
-import "@yield-protocol/utils-v2/contracts/token/IERC20.sol";
-import "@yield-protocol/utils-v2/contracts/token/IERC2612.sol";
+import "./interfaces/vault/IFYToken.sol";
+import "./interfaces/vault/IJoin.sol";
+import "./interfaces/vault/ICauldron.sol";
+import "./interfaces/vault/IOracle.sol";
+import "./interfaces/vault/DataTypes.sol";
+import "./interfaces/yieldspace/IPool.sol";
+import "./interfaces/external/IERC20.sol";
+import "./interfaces/external/IERC2612.sol";
 import "dss-interfaces/src/dss/DaiAbstract.sol";
-import "@yield-protocol/utils-v2/contracts/access/AccessControl.sol";
-import "@yield-protocol/utils-v2/contracts/token/AllTransferHelper.sol";
-import "@yield-protocol/utils-v2/contracts/interfaces/IWETH9.sol";
+import "./utils/access/AccessControl.sol";
+import "./utils/token/TransferHelper.sol";
+import "./interfaces/external/IWETH9.sol";
 import "./math/WMul.sol";
 import "./math/CastU256U128.sol";
 import "./math/CastU128I128.sol";
@@ -23,10 +23,14 @@ contract Ladle is LadleStorage, AccessControl() {
     using WMul for uint256;
     using CastU256U128 for uint256;
     using CastU128I128 for uint128;
-    using AllTransferHelper for IERC20;
-    using AllTransferHelper for address payable;
+    using TransferHelper for IERC20;
+    using TransferHelper for address payable;
 
-    constructor (ICauldron cauldron) LadleStorage(cauldron) { }
+    IWETH9 public immutable weth;
+
+    constructor (ICauldron cauldron, IWETH9 weth_) LadleStorage(cauldron) {
+        weth = weth_;
+    }
 
     // ---- Data sourcing ----
     /// @dev Obtains a vault by vaultId from the Cauldron, and verifies that msg.sender is the owner
@@ -111,7 +115,7 @@ contract Ladle is LadleStorage, AccessControl() {
 
 
     /// @dev Submit a series of calls for execution.
-    /// Unlike `multicall`, this function calls private functions, saving a CALL per function.
+    /// Unlike `batch`, this function calls private functions, saving a CALL per function.
     /// It also caches the vault, which is useful in `build` + `pour` and `build` + `serve` combinations.
     function batch(
         Operation[] calldata operations,
@@ -131,9 +135,9 @@ contract Ladle is LadleStorage, AccessControl() {
                 (cachedId, vault) = (vaultId, _build(vaultId, seriesId, ilkId));   // Cache the vault that was just built
             
             } else if (operation == Operation.FORWARD_PERMIT) {
-                (bytes6 id, bool asset, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) =
+                (bytes6 id, bool isAsset, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) =
                     abi.decode(data[i], (bytes6, bool, address, uint256, uint256, uint8, bytes32, bytes32));
-                _forwardPermit(id, asset, spender, amount, deadline, v, r, s);
+                _forwardPermit(id, isAsset, spender, amount, deadline, v, r, s);
             
             } else if (operation == Operation.JOIN_ETHER) {
                 (bytes6 etherId) = abi.decode(data[i], (bytes6));
@@ -155,9 +159,9 @@ contract Ladle is LadleStorage, AccessControl() {
                 (vault,) = _roll(vaultId, vault, newSeriesId, max);
             
             } else if (operation == Operation.FORWARD_DAI_PERMIT) {
-                (bytes6 id, bool asset, address spender, uint256 nonce, uint256 deadline, bool allowed, uint8 v, bytes32 r, bytes32 s) =
+                (bytes6 id, bool isAsset, address spender, uint256 nonce, uint256 deadline, bool allowed, uint8 v, bytes32 r, bytes32 s) =
                     abi.decode(data[i], (bytes6, bool, address, uint256, uint256, bool, uint8, bytes32, bytes32));
-                _forwardDaiPermit(id, asset, spender, nonce, deadline, allowed, v, r, s);
+                _forwardDaiPermit(id, isAsset, spender, nonce, deadline, allowed, v, r, s);
             
             } else if (operation == Operation.TRANSFER_TO_POOL) {
                 (bytes6 seriesId, bool base, uint128 wad) =
@@ -172,8 +176,8 @@ contract Ladle is LadleStorage, AccessControl() {
                 _route(pool, poolCall);
             
             } else if (operation == Operation.EXIT_ETHER) {
-                (bytes6 etherId, address to) = abi.decode(data[i], (bytes6, address));
-                _exitEther(etherId, payable(to));
+                (address to) = abi.decode(data[i], (address));
+                _exitEther(payable(to));
             
             } else if (operation == Operation.CLOSE) {
                 (bytes12 vaultId, address to, int128 ink, int128 art) = abi.decode(data[i], (bytes12, address, int128, int128));
@@ -190,10 +194,14 @@ contract Ladle is LadleStorage, AccessControl() {
                 if (cachedId != vaultId) (cachedId, vault) = (vaultId, getOwnedVault(vaultId));
                 _repayVault(vaultId, vault, to, ink, max);
 
-            } else if (operation == Operation.REMOVE_REPAY) {
-                (bytes12 vaultId, address to, uint128 minBaseOut, uint128 minFYTokenOut) = abi.decode(data[i], (bytes12, address, uint128, uint128));
+            } else if (operation == Operation.REPAY_LADLE) {
+                (bytes12 vaultId) = abi.decode(data[i], (bytes12));
                 if (cachedId != vaultId) (cachedId, vault) = (vaultId, getOwnedVault(vaultId));
-                _removeAndRepay(vaultId, vault, to, minBaseOut, minFYTokenOut);
+                _repayLadle(vaultId, vault);
+
+            } else if (operation == Operation.RETRIEVE) {
+                (bytes6 assetId, bool isAsset, address to) = abi.decode(data[i], (bytes6, bool, address));
+                _retrieve(assetId, isAsset, to);
 
             } else if (operation == Operation.TRANSFER_TO_FYTOKEN) {
                 (bytes6 seriesId, uint256 amount) = abi.decode(data[i], (bytes6, uint256));
@@ -315,6 +323,7 @@ contract Ladle is LadleStorage, AccessControl() {
 
     /// @dev Add collateral and borrow from vault, pull assets from and push borrowed asset to user
     /// Or, repay to vault and remove collateral, pull borrowed asset from and push assets to user
+    /// Borrow only before maturity.
     function _pour(bytes12 vaultId, DataTypes.Vault memory vault, address to, int128 ink, int128 art)
         private
         returns (DataTypes.Balances memory balances)
@@ -344,6 +353,7 @@ contract Ladle is LadleStorage, AccessControl() {
 
     /// @dev Add collateral and borrow from vault, so that a precise amount of base is obtained by the user.
     /// The base is obtained by borrowing fyToken and buying base with it in a pool.
+    /// Only before maturity.
     function _serve(bytes12 vaultId, DataTypes.Vault memory vault, address to, uint128 ink, uint128 base, uint128 max)
         private
         returns (DataTypes.Balances memory balances, uint128 art)
@@ -399,6 +409,7 @@ contract Ladle is LadleStorage, AccessControl() {
 
     /// @dev Repay debt by selling base in a pool and using the resulting fyToken
     /// The base tokens need to be already in the pool, unaccounted for.
+    /// Only before maturity. After maturity use close.
     function _repay(bytes12 vaultId, DataTypes.Vault memory vault, address to, int128 ink, uint128 min)
         private
         returns (DataTypes.Balances memory balances, uint128 art)
@@ -412,6 +423,7 @@ contract Ladle is LadleStorage, AccessControl() {
 
     /// @dev Repay all debt in a vault by buying fyToken from a pool with base.
     /// The base tokens need to be already in the pool, unaccounted for. The surplus base will be returned to msg.sender.
+    /// Only before maturity. After maturity use close.
     function _repayVault(bytes12 vaultId, DataTypes.Vault memory vault, address to, int128 ink, uint128 max)
         private
         returns (DataTypes.Balances memory balances, uint128 base)
@@ -425,35 +437,32 @@ contract Ladle is LadleStorage, AccessControl() {
         pool.retrieveBase(msg.sender);
     }
 
-    /// @dev Remove liquidity in a pool and use proceedings to repay debt
-    /// The liquidity tokens need to be already in the pool, unaccounted for.
-    function _removeAndRepay(bytes12 vaultId, DataTypes.Vault memory vault, address to, uint128 minBaseOut, uint128 minFYTokenOut)
+    // ---- Ladle as a token holder ----
+
+    /// @dev Use fyToken in the Ladle to repay debt.
+    function _repayLadle(bytes12 vaultId, DataTypes.Vault memory vault)
         private
         returns (DataTypes.Balances memory balances)
     {
         DataTypes.Series memory series = getSeries(vault.seriesId);
         balances = cauldron.balances(vaultId);
-        IPool pool = getPool(vault.seriesId);
-        (, uint256 base, uint256 art) = pool.burn(address(this), minBaseOut, minFYTokenOut);
-
-        uint256 repayment;
+        
+        uint256 amount = series.fyToken.balanceOf(address(this));
+        amount = amount <= balances.art ? amount : balances.art;
 
         // Update accounting
-        if (balances.art > 0) {
-            repayment = (art >= balances.art) ? balances.art : art;
-            balances = cauldron.pour(vaultId, 0, -(repayment.u128().i128()));
-            series.fyToken.burn(address(this), repayment);
-        }
-        
-        // Return base
-        IERC20 baseToken = IERC20(cauldron.assets(series.baseId));
-        baseToken.safeTransfer(to, base);
+        balances = cauldron.pour(vaultId, 0, -(amount.u128().i128()));
+        series.fyToken.burn(address(this), amount);
+    }
 
-        // Return fyToken
-        if (art - repayment > 0) {
-            IERC20 fyToken = IERC20(address(series.fyToken));
-            fyToken.safeTransfer(to, art - repayment);
-        }
+    /// @dev Retrieve any asset or fyToken in the Ladle
+    function _retrieve(bytes6 id, bool isAsset, address to) 
+        private
+        returns (uint256 amount)
+    {
+        IERC20 token = IERC20(findToken(id, isAsset));
+        amount = token.balanceOf(address(this));
+        token.safeTransfer(to, amount);
     }
 
     // ---- Liquidations ----
@@ -481,26 +490,26 @@ contract Ladle is LadleStorage, AccessControl() {
     // ---- Permit management ----
 
     /// @dev From an id, which can be an assetId or a seriesId, find the resulting asset or fyToken
-    function findToken(bytes6 id, bool asset)
+    function findToken(bytes6 id, bool isAsset)
         private view returns (address token)
     {
-        token = asset ? cauldron.assets(id) : address(getSeries(id).fyToken);
+        token = isAsset ? cauldron.assets(id) : address(getSeries(id).fyToken);
         require (token != address(0), "Token not found");
     }
 
     /// @dev Execute an ERC2612 permit for the selected asset or fyToken
-    function _forwardPermit(bytes6 id, bool asset, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+    function _forwardPermit(bytes6 id, bool isAsset, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
         private
     {
-        IERC2612 token = IERC2612(findToken(id, asset));
+        IERC2612 token = IERC2612(findToken(id, isAsset));
         token.permit(msg.sender, spender, amount, deadline, v, r, s);
     }
 
     /// @dev Execute a Dai-style permit for the selected asset or fyToken
-    function _forwardDaiPermit(bytes6 id, bool asset, address spender, uint256 nonce, uint256 deadline, bool allowed, uint8 v, bytes32 r, bytes32 s)
+    function _forwardDaiPermit(bytes6 id, bool isAsset, address spender, uint256 nonce, uint256 deadline, bool allowed, uint8 v, bytes32 r, bytes32 s)
         private
     {
-        DaiAbstract token = DaiAbstract(findToken(id, asset));
+        DaiAbstract token = DaiAbstract(findToken(id, isAsset));
         token.permit(msg.sender, spender, nonce, deadline, allowed, v, r, s);
     }
 
@@ -510,32 +519,27 @@ contract Ladle is LadleStorage, AccessControl() {
     receive() external payable { }
 
     /// @dev Accept Ether, wrap it and forward it to the WethJoin
-    /// This function should be called first in a multicall, and the Join should keep track of stored reserves
+    /// This function should be called first in a batch, and the Join should keep track of stored reserves
     /// Passing the id for a join that doesn't link to a contract implemnting IWETH9 will fail
     function _joinEther(bytes6 etherId)
         private
         returns (uint256 ethTransferred)
     {
         ethTransferred = address(this).balance;
-
         IJoin wethJoin = getJoin(etherId);
-        address weth = wethJoin.asset();                    // TODO: Consider setting weth contract via governance
-
-        IWETH9(weth).deposit{ value: ethTransferred }();   // TODO: Test gas savings using WETH10 `depositTo`
-        IERC20(weth).safeTransfer(address(wethJoin), ethTransferred);
+        weth.deposit{ value: ethTransferred }();   // TODO: Test gas savings using WETH10 `depositTo`
+        IERC20(address(weth)).safeTransfer(address(wethJoin), ethTransferred);
     }
 
     /// @dev Unwrap Wrapped Ether held by this Ladle, and send the Ether
-    /// This function should be called last in a multicall, and the Ladle should have no reason to keep an WETH balance
-    function _exitEther(bytes6 etherId, address payable to)
+    /// This function should be called last in a batch, and the Ladle should have no reason to keep an WETH balance
+    function _exitEther(address payable to)
         private
         returns (uint256 ethTransferred)
     {
-        IJoin wethJoin = getJoin(etherId);
-        address weth = wethJoin.asset();            // TODO: Consider setting weth contract via governance
-        ethTransferred = IERC20(weth).balanceOf(address(this));
-        IWETH9(weth).withdraw(ethTransferred);   // TODO: Test gas savings using WETH10 `withdrawTo`
-        to.safeTransferETH(ethTransferred); /// TODO: Consider reentrancy
+        ethTransferred = weth.balanceOf(address(this));
+        weth.withdraw(ethTransferred);   // TODO: Test gas savings using WETH10 `withdrawTo`
+        to.safeTransferETH(ethTransferred);
     }
 
     // ---- Pool router ----
@@ -566,12 +570,13 @@ contract Ladle is LadleStorage, AccessControl() {
         IERC20(fyToken).safeTransferFrom(msg.sender, address(fyToken), wad);
     }
 
-    /// @dev Allow users to redeem fyToken, to be used with batch
+    /// @dev Allow users to redeem fyToken, to be used with batch.
+    /// If 0 is passed as the amount to redeem, it redeems the fyToken balance of the Ladle instead.
     function _redeem(IFYToken fyToken, address to, uint256 wad)
         private
         returns (uint256)
     {
-        return fyToken.redeem(to, wad);
+        return fyToken.redeem(to, wad != 0 ? wad : fyToken.balanceOf(address(this)));
     }
 
     // ---- Module router ----

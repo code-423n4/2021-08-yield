@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import "@yield-protocol/utils-v2/contracts/access/AccessControl.sol";
-import "@yield-protocol/vault-interfaces/ILadle.sol";
-import "@yield-protocol/vault-interfaces/ICauldron.sol";
-import "@yield-protocol/vault-interfaces/DataTypes.sol";
+import "./utils/access/AccessControl.sol";
+import "./interfaces/vault/ILadle.sol";
+import "./interfaces/vault/ICauldron.sol";
+import "./interfaces/vault/DataTypes.sol";
 import "./math/WMul.sol";
 import "./math/WDiv.sol";
 import "./math/WDivUp.sol";

@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 import "erc3156/contracts/interfaces/IERC3156FlashLender.sol";
-import "@yield-protocol/utils-v2/contracts/token/ERC20Permit.sol";
-import "@yield-protocol/vault-interfaces/IFYToken.sol";
-import "@yield-protocol/vault-interfaces/IJoin.sol";
-import "@yield-protocol/vault-interfaces/IOracle.sol";
-import "@yield-protocol/utils-v2/contracts/access/AccessControl.sol";
+import "./utils/token/ERC20Permit.sol";
+import "./interfaces/vault/IFYToken.sol";
+import "./interfaces/vault/IJoin.sol";
+import "./interfaces/vault/IOracle.sol";
+import "./utils/access/AccessControl.sol";
 import "./math/WMul.sol";
 import "./math/WDiv.sol";
 import "./math/CastU256U128.sol";
@@ -171,7 +171,7 @@ contract FYToken is IFYToken, IERC3156FlashLender, AccessControl(), ERC20Permit 
         if (available >= amount) {
             unchecked { return super._burn(address(this), amount); }
         } else {
-            if (available >= 0 ) _burn(address(this), available);
+            if (available > 0 ) super._burn(address(this), available);
             unchecked { _decreaseAllowance(from, amount - available); }
             unchecked { return super._burn(from, amount - available); }
         }

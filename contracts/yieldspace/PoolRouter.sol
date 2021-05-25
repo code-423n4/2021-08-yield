@@ -2,20 +2,20 @@
 
 pragma solidity >= 0.8.0;
 
-import "@yield-protocol/utils-v2/contracts/token/IERC20.sol";
-import "@yield-protocol/utils-v2/contracts/token/IERC2612.sol";
-import "@yield-protocol/utils-v2/contracts/token/AllTransferHelper.sol";
-import "@yield-protocol/utils-v2/contracts/utils/RevertMsgExtractor.sol";
-import "@yield-protocol/utils-v2/contracts/interfaces/IWETH9.sol";
-import "@yield-protocol/yieldspace-interfaces/IPool.sol";
-import "@yield-protocol/yieldspace-interfaces/IPoolFactory.sol";
-import "@yield-protocol/yieldspace-interfaces/PoolDataTypes.sol";
+import "../utils/token/TransferHelper.sol";
+import "../utils/RevertMsgExtractor.sol";
+import "../interfaces/external/IERC20.sol";
+import "../interfaces/external/IERC2612.sol";
+import "../interfaces/external/IWETH9.sol";
+import "../interfaces/yieldspace/IPool.sol";
+import "../interfaces/yieldspace/IPoolFactory.sol";
+import "../interfaces/yieldspace/PoolDataTypes.sol";
 import "dss-interfaces/src/dss/DaiAbstract.sol";
 
 
 contract PoolRouter {
-    using AllTransferHelper for IERC20;
-    using AllTransferHelper for address payable;
+    using TransferHelper for IERC20;
+    using TransferHelper for address payable;
 
     IPoolFactory public immutable factory;
     IWETH9 public immutable weth;
@@ -166,6 +166,6 @@ contract PoolRouter {
         ethTransferred = weth.balanceOf(address(this));
 
         weth.withdraw(ethTransferred);   // TODO: Test gas savings using WETH10 `withdrawTo`
-        payable(to).safeTransferETH(ethTransferred); /// TODO: Consider reentrancy and safe transfers
+        payable(to).safeTransferETH(ethTransferred);
     }
 }

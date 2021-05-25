@@ -2291,22 +2291,14 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
-"@yield-protocol/utils-v2@^2.2.5":
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/@yield-protocol/utils-v2/-/utils-v2-2.2.5.tgz#b6f8b8d5eee11eb664217af62587a7628fbd42c1"
-  integrity sha512-Lu8bDQgnmA9m0hhCn6ko235mm95UszIn0+qyR6tLoJ5CPaJ1qQFuQtB2iEel24Wq8WP1B8tAYdfjI7N5XXwKcA==
-  dependencies:
-    ethereumjs-util "^7.0.8"
-    ethers "^5.0.7"
+"./interfaces/vault@^2.0.32":
+  version "2.0.33"
+  resolved "https://registry.yarnpkg.com/./interfaces/vault/-/vault-interfaces-2.0.33.tgz#9d76aec8698b6377713c7e0cf1add0c06ed986b5"
+  integrity sha512-GUhA5UpnVrZjaoBt1jy7yubz5pAkDkegZXSRdSpznVwmSJBMMm7hs/tF/Yfkma7Ru+30kxIVvuhYOT1Y/q8P5g==
 
-"@yield-protocol/vault-interfaces@^2.0.30":
-  version "2.0.30"
-  resolved "https://registry.yarnpkg.com/@yield-protocol/vault-interfaces/-/vault-interfaces-2.0.30.tgz#17911b230d641876829d64b67d9cd213f2855407"
-  integrity sha512-D2FbFKYtIEpWlsj3kER2s3fRTAhJR+qQHblofYn2fxQ+J55RxHDIWQ8SeF0GPSuY1X9DcFYsWx2hv8XTA7jklg==
-
-"@yield-protocol/yieldspace-interfaces@^2.0.14":
+"./interfaces/yieldspace@^2.0.14":
   version "2.0.14"
-  resolved "https://registry.yarnpkg.com/@yield-protocol/yieldspace-interfaces/-/yieldspace-interfaces-2.0.14.tgz#b54adfcde6f8149b910fa77062f24ce5f62f988f"
+  resolved "https://registry.yarnpkg.com/./interfaces/yieldspace/-/yieldspace-interfaces-2.0.14.tgz#b54adfcde6f8149b910fa77062f24ce5f62f988f"
   integrity sha512-M/6Q++878++40en39Bl4UPkTXeYR0N+HitUJmx0qpXLrrwCML7u2pMCgGfrf6zTowcQYBPDwsG7A5n1bwzhzpA==
 
 abab@^2.0.0:
@@ -5883,7 +5875,7 @@ ethers@^4.0.32, ethers@^4.0.40:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^5.0.0, ethers@^5.0.1, ethers@^5.0.2, ethers@^5.0.31, ethers@^5.0.7:
+ethers@^5.0.0, ethers@^5.0.1, ethers@^5.0.2, ethers@^5.0.31:
   version "5.0.32"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.0.32.tgz#f009970be31d96a589bf0ce597a39c10c7e297a6"
   integrity sha512-rORfGWR0HsA4pjKMMcWZorw12DHsXqfIAuPVHJsXt+vI24jvXcVqx+rLsSvgOoLdaCMdxiN5qlIq2+4axKG31g==

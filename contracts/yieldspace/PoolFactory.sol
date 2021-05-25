@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >= 0.8.0;
 
-import "@yield-protocol/yieldspace-interfaces/IPoolFactory.sol";
+import "../interfaces/yieldspace/IPoolFactory.sol";
 import "./Pool.sol";
 
 

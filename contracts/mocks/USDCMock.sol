@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >= 0.8.0;
-import "@yield-protocol/utils-v2/contracts/token/ERC20Permit.sol";
+import "../utils/token/ERC20Permit.sol";
 
 
 contract USDCMock is ERC20Permit {

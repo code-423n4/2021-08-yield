@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
-import "@yield-protocol/vault-interfaces/IFYToken.sol";
-import "@yield-protocol/vault-interfaces/IOracle.sol";
-import "@yield-protocol/vault-interfaces/DataTypes.sol";
-import "@yield-protocol/utils-v2/contracts/access/AccessControl.sol";
+import "./interfaces/vault/IFYToken.sol";
+import "./interfaces/vault/IOracle.sol";
+import "./interfaces/vault/DataTypes.sol";
+import "./utils/access/AccessControl.sol";
 import "./math/WMul.sol";
 import "./math/WDiv.sol";
 import "./math/CastU128I128.sol";
@@ -101,7 +101,6 @@ contract Cauldron is AccessControl() {
         auth
     {
         require (assets[baseId] != address(0), "Base not found");
-        // TODO: The oracle should record the asset it refers to, and we should match it against assets[baseId]
         rateOracles[baseId] = oracle;
         emit RateOracleAdded(baseId, address(oracle));
     }
@@ -122,7 +121,6 @@ contract Cauldron is AccessControl() {
     {
         require (assets[baseId] != address(0), "Base not found");
         require (assets[ilkId] != address(0), "Ilk not found");
-        // TODO: The oracle should record the assets it refers to, and we should match it against assets[baseId] and assets[ilkId]
         spotOracles[baseId][ilkId] = DataTypes.SpotOracle({
             oracle: oracle,
             ratio: ratio                                                                    // With 6 decimals. 1000000 == 100%
@@ -318,8 +316,10 @@ contract Cauldron is AccessControl() {
             DataTypes.Debt memory debt_ = debt[series_.baseId][vault_.ilkId];
             balances_.art = balances_.art.add(art);
             debt_.sum = debt_.sum.add(art);
-            require (balances_.art == 0 || balances_.art >= debt_.min * 10 ** debt_.dec, "Min debt not reached");
-            if (art > 0) require (debt_.sum <= debt_.max * 10 ** debt_.dec, "Max debt exceeded");
+            uint128 dust = debt_.min * uint128(10) ** debt_.dec;
+            uint128 line = debt_.max * uint128(10) ** debt_.dec;
+            require (balances_.art == 0 || balances_.art >= dust, "Min debt not reached");
+            if (art > 0) require (debt_.sum <= line, "Max debt exceeded");
             debt[series_.baseId][vault_.ilkId] = debt_;
         }
         balances[vaultId] = balances_;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.0;
 
-import "@yield-protocol/utils-v2/contracts/token/IERC20.sol";
+import "../interfaces/external/IERC20.sol";
 import "./ERC20Mock.sol";
 
 contract GemJoinMock {

@@ -7,16 +7,16 @@ License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
 
 Parameters
 
-Licensor:             Uniswap Labs
+Licensor:             Yield Inc.
 
-Licensed Work:        Uniswap V3 Core
-                      The Licensed Work is (c) 2021 Uniswap Labs
+Licensed Work:        Yield Protocol v2
+                      The Licensed Work is (c) 2021 Yield Inc.
 
 Additional Use Grant: Any uses listed and defined at
-                      v3-core-license-grants.uniswap.eth
+                      v2-license-grants.yieldprotocol.eth
 
-Change Date:          The earlier of 2023-04-01 or a date specified at
-                      v3-core-license-date.uniswap.eth
+Change Date:          The earlier of 2023-06-01 or a date specified at
+                      v2-license-date.yieldprotocol.eth
 
 Change License:       GNU General Public License v2.0 or later
 

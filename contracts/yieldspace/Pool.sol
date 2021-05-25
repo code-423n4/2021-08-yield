@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >= 0.8.0;
 
-import "@yield-protocol/utils-v2/contracts/access/Ownable.sol";
-import "@yield-protocol/utils-v2/contracts/token/IERC20.sol";
-import "@yield-protocol/utils-v2/contracts/token/IERC20Metadata.sol";
-import "@yield-protocol/utils-v2/contracts/token/ERC20Permit.sol";
-import "@yield-protocol/utils-v2/contracts/token/SafeERC20Namer.sol";
-import "@yield-protocol/utils-v2/contracts/token/TransferHelper.sol";
-import "@yield-protocol/yieldspace-interfaces/IPool.sol";
-import "@yield-protocol/yieldspace-interfaces/IPoolFactory.sol";
-import "@yield-protocol/vault-interfaces/IFYToken.sol";
+import "../utils/access/Ownable.sol";
+import "../interfaces/external/IERC20.sol";
+import "../interfaces/external/IERC20Metadata.sol";
+import "../utils/token/ERC20Permit.sol";
+import "../utils/token/SafeERC20Namer.sol";
+import "../utils/token/MinimalTransferHelper.sol";
+import "../interfaces/yieldspace/IPool.sol";
+import "../interfaces/yieldspace/IPoolFactory.sol";
+import "../interfaces/vault/IFYToken.sol";
 import "./YieldMath.sol";
 
 
@@ -52,7 +52,7 @@ library SafeCast128 {
 contract Pool is IPool, ERC20Permit, Ownable {
     using SafeCast256 for uint256;
     using SafeCast128 for uint128;
-    using TransferHelper for IERC20;
+    using MinimalTransferHelper for IERC20;
 
     event Trade(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens);
     event Liquidity(uint32 maturity, address indexed from, address indexed to, int256 bases, int256 fyTokens, int256 poolTokens);
