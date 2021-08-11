@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity ^0.8.0;
+pragma solidity 0.8.1;
 import "./interfaces/vault/ICauldron.sol";
 import "./interfaces/vault/IJoin.sol";
 import "./interfaces/yieldspace/IPool.sol";
@@ -7,32 +7,6 @@ import "./interfaces/yieldspace/IPool.sol";
 
 /// @dev Ladle orchestrates contract calls throughout the Yield Protocol v2 into useful and efficient user oriented features.
 contract LadleStorage {
-
-    enum Operation {
-        BUILD,               // 0
-        TWEAK,               // 1
-        GIVE,                // 2
-        DESTROY,             // 3
-        STIR,                // 4
-        POUR,                // 5
-        SERVE,               // 6
-        ROLL,                // 7
-        CLOSE,               // 8
-        REPAY,               // 9
-        REPAY_VAULT,         // 10
-        REPAY_LADLE,         // 11
-        RETRIEVE,            // 12
-        FORWARD_PERMIT,      // 13
-        FORWARD_DAI_PERMIT,  // 14
-        JOIN_ETHER,          // 15
-        EXIT_ETHER,          // 16
-        TRANSFER_TO_POOL,    // 17
-        ROUTE,               // 18
-        TRANSFER_TO_FYTOKEN, // 19
-        REDEEM,              // 20
-        MODULE               // 21
-    }
-
     ICauldron public immutable cauldron;
     uint256 public borrowingFee;
 

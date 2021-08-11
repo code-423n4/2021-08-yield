@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Taken from https://github.com/Uniswap/uniswap-lib/blob/master/contracts/libraries/MinimalTransferHelper.sol
+// Taken from https://github.com/Uniswap/uniswap-lib/blob/master/contracts/libraries/TransferHelper.sol
 
 pragma solidity >=0.6.0;
 
