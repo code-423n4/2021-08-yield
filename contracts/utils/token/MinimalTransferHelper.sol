@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: MIT
-// Taken from https://github.com/Uniswap/uniswap-lib/blob/master/contracts/libraries/MinimalTransferHelper.sol
+// Taken from https://github.com/Uniswap/uniswap-lib/blob/master/contracts/libraries/TransferHelper.sol
 
 pragma solidity >=0.6.0;
 
-import "../../interfaces/external/IERC20.sol";
+import "./IERC20.sol";
 import "../RevertMsgExtractor.sol";
 
 
-// helper methods for interacting with ERC20 tokens and sending ETH that do not consistently return true/false
+// helper methods for transferring ERC20 tokens that do not consistently return true/false
 library MinimalTransferHelper {
+    /// @notice Transfers tokens from msg.sender to a recipient
+    /// @dev Errors with the underlying revert message if transfer fails
+    /// @param token The contract address of the token which will be transferred
+    /// @param to The recipient of the transfer
+    /// @param value The value of the transfer
     function safeTransfer(
         IERC20 token,
         address to,
