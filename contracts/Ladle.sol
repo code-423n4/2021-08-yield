@@ -24,8 +24,8 @@ contract Ladle is LadleStorage, AccessControl() {
     using WMul for uint256;
     using CastU256U128 for uint256;
     using CastU128I128 for uint128;
-    using AllTransferHelper for IERC20;
-    using AllTransferHelper for address payable;
+    using TransferHelper for IERC20;
+    using TransferHelper for address payable;
 
     IWETH9 public immutable weth;
 

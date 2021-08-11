@@ -13,7 +13,7 @@ import "./math/CastU256U128.sol";
 
 
 contract Join is IJoin, IERC3156FlashLender, AccessControl() {
-    using AllTransferHelper for IERC20;
+    using TransferHelper for IERC20;
     using WMul for uint256;
     using CastU256U128 for uint256;
 
