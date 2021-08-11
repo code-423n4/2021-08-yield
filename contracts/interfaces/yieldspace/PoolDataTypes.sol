@@ -3,8 +3,6 @@ pragma solidity >= 0.8.0;
 
 
 library PoolDataTypes {
-  enum TokenType { BASE, FYTOKEN, LP }
-
   enum Operation {
     ROUTE, // 0
     TRANSFER_TO_POOL, // 1

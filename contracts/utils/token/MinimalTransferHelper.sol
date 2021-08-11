@@ -3,7 +3,7 @@
 
 pragma solidity >=0.6.0;
 
-import "./IERC20.sol";
+import "../../interfaces/external/IERC20.sol";
 import "../RevertMsgExtractor.sol";
 
 

@@ -2,7 +2,7 @@
 
 pragma solidity >=0.5.0;
 
-import "./IERC20Metadata.sol";
+import "../../interfaces/external/IERC20Metadata.sol";
 import "../AddressStringUtil.sol";
 
 // produces token descriptors from inconsistent or absent ERC20 symbol implementations that can return string or bytes32
