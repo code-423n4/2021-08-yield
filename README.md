@@ -1,11 +1,12 @@
 
-# Yield contest details
-- $100,000 main award pot
+# Yield Micro Contest #1
+- $28,500 USDC main award pot
+- $1,500 USDC optimizations award pot
 - Join [C4 Discord](https://discord.gg/EY5dvm3evD) to register
-- Submit findings [using the C4 form](https://code423n4.com/2021-05-yield-contest/submit)
+- Submit findings [using the C4 form](https://code423n4.com/2021-08-yield-contest/submit)
 - [Read our guidelines for more details](https://code423n4.com/compete)
-- Starts May 27 00:00 UTC
-- Ends June 2 23:59 UTC
+- Starts August 12 00:00 UTC
+- Ends August 14 23:59 UTC
 
 
 # Contest scoping
