@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.1;
 
-import "@yield-protocol/utils-v2/contracts/access/AccessControl.sol";
-import "@yield-protocol/utils-v2/contracts/token/TransferHelper.sol";
-import "@yield-protocol/utils-v2/contracts/token/IERC20.sol";
-import "@yield-protocol/utils-v2/contracts/token/ERC20Rewards.sol";
-import "@yield-protocol/vault-interfaces/DataTypes.sol";
-import "@yield-protocol/yieldspace-interfaces/IPool.sol";
+import "./utils/access/AccessControl.sol";
+import "./utils/token/TransferHelper.sol";
+import "./utils/token/IERC20.sol";
+import "./utils/token/ERC20Rewards.sol";
+import "./interfaces/vault/DataTypes.sol";
+import "./interfaces/yieldspace/IPool.sol";
 
 
 interface ILadle {
