@@ -4,6 +4,7 @@ pragma solidity 0.8.1;
 import "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 import "erc3156/contracts/interfaces/IERC3156FlashLender.sol";
 import "./utils/token/ERC20Permit.sol";
+import "./utils/token/SafeERC20Namer.sol";
 import "./interfaces/vault/IFYToken.sol";
 import "./interfaces/vault/IJoin.sol";
 import "./interfaces/vault/IOracle.sol";
