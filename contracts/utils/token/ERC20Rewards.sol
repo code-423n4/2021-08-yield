@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.1;
 
-import "./IERC20.sol";
 import "./ERC20Permit.sol";
 import "../access/AccessControl.sol";
-import "../utils/RevertMsgExtractor.sol";
+import "../RevertMsgExtractor.sol";
 
 
 library CastU256U32 {

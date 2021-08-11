@@ -2,7 +2,7 @@
 // Inspired on TimeLock.sol from Compound.
 
 pragma solidity ^0.8.0;
-import "../access/AccessControl.sol";
+import "./access/AccessControl.sol";
 import "./RevertMsgExtractor.sol";
 
 interface ITimeLock {
