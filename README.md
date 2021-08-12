@@ -3,7 +3,7 @@
 - $28,500 USDC main award pot
 - $1,500 USDC optimizations award pot
 - Join [C4 Discord](https://discord.gg/EY5dvm3evD) to register
-- Submit findings [using the C4 form](https://code423n4.com/2021-08-yield-contest/submit)
+- Submit findings [using the C4 form](https://code423n4.com/2021-08-yield-micro-contest-1/submit)
 - [Read our guidelines for more details](https://code423n4.com/compete)
 - Starts August 12 00:00 UTC
 - Ends August 14 23:59 UTC
